@@ -1,57 +1,28 @@
-```php
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-*.class
-*.exe
-*.dll
-*.so
-*.a
-*.out
+```
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 
-# Dependencies
-vendor/
-node_modules/
-*.phar
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-*.swo
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Distribution and build
-dist/
-build/
-target/
-coverage/
-htmlcov/
-*.coverage
-
-# OS specific
-.DS_Store
-Thumbs.db
-
-# Cache directories
-.cache/
-.mypy_cache/
-.pytest_cache/
-.gradle/
-
-# Virtual environments
-venv/
-.venv/
+# Fonts directory (since vazir-fonts.zip was added there)
+fonts/
 ```
