@@ -376,7 +376,10 @@ if ($message) {
         ];
         save_json_data(SETTINGS_FILE, $settings);
         
-        $invite_link = "https://t.me/" . $message['from']['username'] . "?start=" . $invite_code;
+        // Get bot username for the invite link
+        $getMe = apiRequest('getMe', []);
+        $bot_username = $getMe['result']['username'] ?? 'username_not_found';
+        $invite_link = "https://t.me/" . $bot_username . "?start=" . $invite_code;
         
         sendMessage($chat_id, "✅ لینک دعوت ادمین ایجاد شد:\n{$invite_link}\n\nاین لینک فقط یک بار قابل استفاده است.");
     } elseif ($is_admin && $text === '📋 لیست ادمین‌ها') {
@@ -722,36 +725,24 @@ if ($message) {
                     'reply_markup' => json_encode($inline_keyboard)
                 ]);
             } else {
-                // User joined all channels, send media
-                $media_content = $media['media'];
+                // User joined all channels, send message to go to bot for video
+                $getMe = apiRequest('getMe', []);
+                $bot_username = $getMe['result']['username'] ?? 'username_not_found';
                 
-                if (isset($media_content['video'])) {
-                    apiRequest('sendVideo', [
-                        'chat_id' => $chat_id,
-                        'video' => $media_content['video']['file_id'],
-                        'caption' => '📥 فیلم درخواستی شما'
-                    ]);
-                } elseif (isset($media_content['document'])) {
-                    apiRequest('sendDocument', [
-                        'chat_id' => $chat_id,
-                        'document' => $media_content['document']['file_id'],
-                        'caption' => '📥 فیلم درخواستی شما'
-                    ]);
-                } else {
-                    sendMessage($chat_id, "❌ متاسفانه فایل ویدیویی یافت نشد.");
-                }
-                
-                // Schedule media deletion after 30 seconds
-                $delete_info = [
-                    'chat_id' => $chat_id,
-                    'message_ids' => [$message_id],
-                    'scheduled_time' => time() + 30
+                $go_to_bot_keyboard = [
+                    'inline_keyboard' => [
+                        [
+                            ['text' => '📥 دریافت فیلم از ربات', 'url' => "https://t.me/{$bot_username}"]
+                        ]
+                    ]
                 ];
-                
-                $deletion_file = __DIR__ . '/scheduled_deletions.json';
-                $deletions = get_json_data($deletion_file);
-                $deletions[] = $delete_info;
-                save_json_data($deletion_file, $deletions);
+
+                apiRequest('editMessageText', [
+                    'chat_id' => $chat_id,
+                    'message_id' => $message_id,
+                    'text' => "✅ شما در تمام چنل‌های الزامی عضو شده‌اید!\n\nاکنون می‌توانید فیلم را از طریق ربات دریافت کنید:",
+                    'reply_markup' => json_encode($go_to_bot_keyboard)
+                ]);
             }
         } else {
             sendMessage($chat_id, "❌ فیلم مورد نظر یافت نشد.");
@@ -793,24 +784,25 @@ if ($message) {
                     sendMessage($chat_id, "❌ متاسفانه فایل ویدیویی یافت نشد.");
                 }
                 
+                // User joined all channels, send message to go to bot for video
+                $getMe = apiRequest('getMe', []);
+                $bot_username = $getMe['result']['username'] ?? 'username_not_found';
+                
+                $go_to_bot_keyboard = [
+                    'inline_keyboard' => [
+                        [
+                            ['text' => '📥 دریافت فیلم از ربات', 'url' => "https://t.me/{$bot_username}"]
+                        ]
+                    ]
+                ];
+
                 // Update the original message
                 apiRequest('editMessageText', [
                     'chat_id' => $chat_id,
                     'message_id' => $message_id,
-                    'text' => "✅ عضویت شما تأیید شد! فیلم در پیام قبلی ارسال شد."
+                    'text' => "✅ عضویت شما تأیید شد! اکنون می‌توانید فیلم را از طریق ربات دریافت کنید:",
+                    'reply_markup' => json_encode($go_to_bot_keyboard)
                 ]);
-                
-                // Schedule media deletion after 30 seconds
-                $delete_info = [
-                    'chat_id' => $chat_id,
-                    'message_ids' => [$message_id],
-                    'scheduled_time' => time() + 30
-                ];
-                
-                $deletion_file = __DIR__ . '/scheduled_deletions.json';
-                $deletions = get_json_data($deletion_file);
-                $deletions[] = $delete_info;
-                save_json_data($deletion_file, $deletions);
             } else {
                 $channels_list = implode("\n", array_map(function($ch) { return "• {$ch['title']}"; }, $not_joined));
                 
