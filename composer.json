@@ -1,0 +1,24 @@
+{
+    "name": "telebot/video-processor",
+    "description": "A Telegram bot for processing videos with intro/outro and watermarks",
+    "type": "project",
+    "require": {
+        "php": "^8.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "TeleBot\\VideoProcessor\\": "src/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "echo 'Dependencies installed successfully'"
+        ],
+        "post-update-cmd": [
+            "echo 'Dependencies updated successfully'"
+        ]
+    }
+}
