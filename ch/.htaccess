@@ -1,0 +1,55 @@
+# Apache configuration for Telegram Channel Manager Bot
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Block direct access to sensitive files and directories
+RewriteRule ^config/.*$ - [F,L]
+RewriteRule ^storage/.*$ - [F,L]
+RewriteRule ^vendor/.*$ - [F,L]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+</IfModule>
+
+# PHP settings
+<IfModule mod_php.c>
+    php_flag display_errors Off
+    php_flag log_errors On
+    php_value error_log /var/log/php_errors.log
+</IfModule>
+
+# Deny access to hidden files
+<Files ~ "^\.">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Limit request methods to prevent abuse
+<LimitExcept GET POST HEAD>
+    Order allow,deny
+    Deny from all
+</LimitExcept>
+
+# Block suspicious user agents
+RewriteCond %{HTTP_USER_AGENT} ^(libwww-perl|wget|scan|java|curl|larbin|robot|python|nikto|crawler|spider|bot|facebookexternalhit) [NC]
+RewriteRule .* - [F,L]
+
+# Block malicious query strings
+RewriteCond %{QUERY_STRING} (union|select|insert|delete|update|drop|create|alter|exec|execute|script|<script|javascript:|onerror|onload|onclick|onmouseover|iframe|alert\() [NC]
+RewriteRule .* - [F,L]
+
+# Block access to common backup/extensions files
+RewriteRule \.(bak|backup|old|orig|save|swp|tmp|zip|tar|gz|rar|7z|sql|db)$ - [F,L]
+
+# Set appropriate MIME types for security
+AddType application/json .json
+AddType text/plain .txt
+AddType text/html .html .htm
+
+# Prevent PHP injection via file uploads
+php_flag file_uploads Off
